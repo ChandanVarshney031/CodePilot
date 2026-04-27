@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodePilot - Practice</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .problem-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr auto;
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            align-items: center;
+        }
+        .problem-row:last-child {
+            border-bottom: none;
+        }
+        .problem-row:hover {
+            background: rgba(255,255,255,0.02);
+        }
+        .problem-header {
+            font-weight: 700;
+            color: var(--text-secondary);
+            border-bottom: 2px solid var(--border-color);
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="/" class="logo">CodePilot</a>
+        <div class="nav-links">
+            <a href="/dashboard.html">Dashboard</a>
+            <a href="#" onclick="logout()">Logout</a>
+        </div>
+    </nav>
+    
+    <div class="section">
+        <h1 class="mb-2">Practice Problems</h1>
+        
+        <h2 style="color: var(--success); margin-bottom: 1rem; margin-top: 2rem;">▶ Easy (10)</h2>
+        <div class="card" style="padding: 0; margin-bottom: 2rem;">
+            <div class="problem-row problem-header">
+                <div>Title</div><div>Difficulty</div><div>Category</div><div>Action</div>
+            </div>
+            <div id="easyProblemsList"><div style="padding: 2rem; text-align: center;" class="text-secondary">Loading...</div></div>
+        </div>
+
+        <h2 style="color: var(--warning); margin-bottom: 1rem;">▶ Medium (10)</h2>
+        <div class="card" style="padding: 0; margin-bottom: 2rem;">
+            <div class="problem-row problem-header">
+                <div>Title</div><div>Difficulty</div><div>Category</div><div>Action</div>
+            </div>
+            <div id="mediumProblemsList"><div style="padding: 2rem; text-align: center;" class="text-secondary">Loading...</div></div>
+        </div>
+
+        <h2 style="color: var(--danger); margin-bottom: 1rem;">▶ Hard (10)</h2>
+        <div class="card" style="padding: 0; margin-bottom: 2rem;">
+            <div class="problem-row problem-header">
+                <div>Title</div><div>Difficulty</div><div>Category</div><div>Action</div>
+            </div>
+            <div id="hardProblemsList"><div style="padding: 2rem; text-align: center;" class="text-secondary">Loading...</div></div>
+        </div>
+
+    </div>
+
+    <script src="js/app.js"></script>
+    <script>
+        // Use API_URL from app.js instead of absolute URL 
+        async function loadProblems() {
+            try {
+                const res = await fetch(`${API_URL}/problems`);
+                const problems = await res.json();
+                
+                const renderHTML = (p) => `
+                    <div class="problem-row">
+                        <div style="font-weight: 500;">${p.title}</div>
+                        <div><span class="badge ${p.difficulty.toLowerCase()}">${p.difficulty}</span></div>
+                        <div class="text-secondary">${p.category}</div>
+                        <div><a href="/practice.html?id=${p._id}" class="btn-secondary">Solve</a></div>
+                    </div>
+                `;
+
+                const easy = problems.filter(p => p.difficulty === 'Easy');
+                const medium = problems.filter(p => p.difficulty === 'Medium');
+                const hard = problems.filter(p => p.difficulty === 'Hard');
+
+                const easyList = document.getElementById('easyProblemsList');
+                const mediumList = document.getElementById('mediumProblemsList');
+                const hardList = document.getElementById('hardProblemsList');
+
+                easyList.innerHTML = easy.length ? easy.map(renderHTML).join('') : '<p style="padding: 2rem; text-align: center;" class="text-secondary">No problems found.</p>';
+                mediumList.innerHTML = medium.length ? medium.map(renderHTML).join('') : '<p style="padding: 2rem; text-align: center;" class="text-secondary">No problems found.</p>';
+                hardList.innerHTML = hard.length ? hard.map(renderHTML).join('') : '<p style="padding: 2rem; text-align: center;" class="text-secondary">No problems found.</p>';
+
+            } catch (e) {
+                console.error(e);
+                document.getElementById('easyProblemsList').innerHTML = '<p style="padding: 2rem; text-align: center; color: var(--danger);">Failed to load problems.</p>';
+            }
+        }
+        
+        loadProblems();
+    </script>
+</body>
+</html>

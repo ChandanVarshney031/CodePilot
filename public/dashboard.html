@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodePilot - Dashboard</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .dashboard-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        .stat-card {
+            text-align: center;
+            padding: 1.5rem;
+        }
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        .problem-item {
+            display: flex;
+            justify-content: space-between;
+            background: rgba(0,0,0,0.2);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="/" class="logo">CodePilot</a>
+        <div class="nav-links">
+            <a href="/problems.html">Practice Problems</a>
+            <a href="#" onclick="logout()">Logout</a>
+        </div>
+    </nav>
+    
+    <div class="section">
+        <div class="dashboard-header">
+            <div>
+                <h1 id="welcomeTitle">Welcome back!</h1>
+                <p class="text-secondary">Here's your learning progress.</p>
+            </div>
+            <a href="/problems.html" class="btn-primary">Solve Problem</a>
+        </div>
+
+        <div class="stats-grid">
+            <div class="card stat-card">
+                <div class="stat-value" id="streakValue">0</div>
+                <div class="text-secondary">Day Streak 🔥</div>
+            </div>
+            <div class="card stat-card">
+                <div class="stat-value" id="solvedValue">0</div>
+                <div class="text-secondary">Problems Solved 🎯</div>
+            </div>
+            <div class="card stat-card">
+                <div class="stat-value" id="rankValue">Top 10%</div>
+                <div class="text-secondary">Global Rank 🏆</div>
+            </div>
+        </div>
+
+        <div class="grid-3 mt-2">
+            <div class="card" style="grid-column: span 2;">
+                <h3>Recently Solved</h3>
+                <div class="mt-2" id="solvedList">
+                    <p class="text-secondary">No problems solved yet.</p>
+                </div>
+            </div>
+            <div class="card">
+                <h3>Enrolled Courses</h3>
+                <div class="mt-2" id="courseList">
+                    <p class="text-secondary">Not enrolled in any courses.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script>
+        if (!getToken()) window.location.href = '/auth.html';
+
+        async function loadDashboard() {
+            try {
+                const res = await fetch(`${API_URL}/users/dashboard`, {
+                    headers: { 'Authorization': `Bearer ${getToken()}` }
+                });
+                if (!res.ok) throw new Error('Failed to fetch');
+                const data = await res.json();
+                
+                document.getElementById('welcomeTitle').textContent = `Welcome, ${data.username}!`;
+                document.getElementById('streakValue').textContent = data.streak;
+                document.getElementById('solvedValue').textContent = data.solvedCount;
+                
+                const solvedList = document.getElementById('solvedList');
+                if (data.solvedProblems && data.solvedProblems.length > 0) {
+                    solvedList.innerHTML = data.solvedProblems.map(p => `
+                        <div class="problem-item">
+                            <span>${p.title} <span class="badge ${p.difficulty.toLowerCase()}">${p.difficulty}</span></span>
+                            <span class="text-secondary">${p.category}</span>
+                        </div>
+                    `).join('');
+                }
+
+                const courseList = document.getElementById('courseList');
+                if (data.enrolledCourses && data.enrolledCourses.length > 0) {
+                    courseList.innerHTML = data.enrolledCourses.map(c => `
+                        <div class="problem-item" style="flex-direction: column; align-items: flex-start;">
+                            <strong>${c.title}</strong>
+                            <span class="text-secondary">${c.category}</span>
+                        </div>
+                    `).join('');
+                } else {
+                    courseList.innerHTML = `<p class="text-secondary" style="margin-bottom: 1rem;">Not enrolled in any paths yet.</p> <a href="/#courses" class="btn-secondary">Browse Courses</a>`;
+                }
+
+            } catch (e) {
+                console.error(e);
+            }
+        }
+        loadDashboard();
+    </script>
+</body>
+</html>

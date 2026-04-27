@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodePilot - Practice Problem</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .split-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            height: calc(100vh - 80px); /* Minus nav */
+        }
+        .problem-desc {
+            padding: 2rem;
+            overflow-y: auto;
+            border-right: 1px solid var(--border-color);
+        }
+        .editor-container {
+            display: flex;
+            flex-direction: column;
+            background: #1e1e1e; /* Classic editor dark */
+        }
+        textarea.code-editor {
+            flex: 1;
+            background: transparent;
+            color: #d4d4d4;
+            border: none;
+            padding: 1.5rem;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1.1rem;
+            resize: none;
+            outline: none;
+        }
+        .editor-footer {
+            padding: 1rem;
+            background: #252526;
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            border-top: 1px solid #333;
+        }
+        #resultMsg {
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="/" class="logo">CodePilot</a>
+        <div class="nav-links">
+            <a href="/problems.html">Problems</a>
+            <a href="/dashboard.html">Dashboard</a>
+        </div>
+    </nav>
+    
+    <div class="split-layout">
+        <div class="problem-desc" id="descPanel">
+            <h1 id="pTitle">Loading...</h1>
+            <div class="mt-2 mb-2">
+                <span id="pDiff" class="badge"></span>
+                <span id="pCat" class="text-secondary" style="margin-left:1rem;"></span>
+            </div>
+            <p id="pDesc" style="white-space: pre-wrap; margin-top: 2rem;" class="text-secondary"></p>
+            
+            <div class="card mt-2">
+                <h4>Hints</h4>
+                <ul id="pHints" class="mt-2 text-secondary" style="margin-left: 1.5rem;"></ul>
+            </div>
+        </div>
+        <div class="editor-container">
+            <textarea id="codeEditor" class="code-editor" spellcheck="false" placeholder="Write your code here...&#10;&#10;/* Note: include 'fail' in your code to test Wrong Answer&#10;   include 'error' to test Error handling. Otherwise it will pass. */&#10;&#10;function solve() {&#10;  // your logic&#10;}"></textarea>
+            <div class="editor-footer">
+                <div id="resultMsg" class="hidden"></div>
+                <button class="btn-secondary" onclick="runCode()">Run Code</button>
+                <button class="btn-primary" onclick="submitCode()">Submit</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script>
+        if (!getToken()) window.location.href = '/auth.html';
+        
+        const urlParams = new URLSearchParams(window.location.search);
+        const problemId = urlParams.get('id');
+        const resultMsg = document.getElementById('resultMsg');
+
+        async function loadProblem() {
+            try {
+                const res = await fetch(`${API_URL}/problems/${problemId}`);
+                const p = await res.json();
+                
+                document.getElementById('pTitle').textContent = p.title;
+                const diffBadge = document.getElementById('pDiff');
+                diffBadge.textContent = p.difficulty;
+                diffBadge.className = `badge ${p.difficulty.toLowerCase()}`;
+                
+                document.getElementById('pCat').textContent = p.category;
+                document.getElementById('pDesc').textContent = p.description;
+                
+                document.getElementById('pHints').innerHTML = p.hints.map(h => `<li>${h}</li>`).join('');
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        function runCode() {
+            resultMsg.textContent = 'Running...';
+            resultMsg.style.background = 'rgba(255,255,255,0.1)';
+            resultMsg.style.color = 'white';
+            resultMsg.classList.remove('hidden');
+            setTimeout(() => {
+                resultMsg.textContent = 'Run successful!';
+                resultMsg.style.background = 'rgba(16,185,129,0.2)';
+                resultMsg.style.color = 'var(--success)';
+            }, 1000);
+        }
+
+        async function submitCode() {
+            const code = document.getElementById('codeEditor').value;
+            resultMsg.textContent = 'Submitting...';
+            resultMsg.style.background = 'rgba(255,255,255,0.1)';
+            resultMsg.style.color = 'white';
+            resultMsg.classList.remove('hidden');
+            
+            try {
+                const res = await fetch(`${API_URL}/submissions`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${getToken()}`
+                    },
+                    body: JSON.stringify({ problemId, code })
+                });
+                const data = await res.json();
+                
+                if (data.status === 'Accepted') {
+                    resultMsg.textContent = 'Accepted!';
+                    resultMsg.style.background = 'rgba(16,185,129,0.2)';
+                    resultMsg.style.color = 'var(--success)';
+                } else if (data.status === 'Wrong Answer') {
+                    resultMsg.textContent = 'Wrong Answer';
+                    resultMsg.style.background = 'rgba(239,68,68,0.2)';
+                    resultMsg.style.color = 'var(--danger)';
+                } else {
+                    resultMsg.textContent = data.status;
+                    resultMsg.style.background = 'rgba(245,158,11,0.2)';
+                    resultMsg.style.color = 'var(--warning)';
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        if (problemId) {
+            loadProblem();
+        } else {
+            document.getElementById('descPanel').innerHTML = '<h2>No Problem Selected.</h2>';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodePilot - MCQ Practice</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .mcq-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .question-block {
+            margin-bottom: 2rem;
+        }
+        .question-text {
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+        }
+        .options-list {
+            list-style: none;
+            padding: 0;
+        }
+        .option-item {
+            margin-bottom: 0.8rem;
+            padding: 1rem;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: block;
+        }
+        .option-item:hover {
+            background: rgba(255,255,255,0.1);
+        }
+        .option-item input {
+            margin-right: 15px;
+        }
+        .correct-answer {
+            background: rgba(16, 185, 129, 0.2) !important;
+            border: 1px solid var(--success);
+        }
+        .wrong-answer {
+            background: rgba(239, 68, 68, 0.2) !important;
+            border: 1px solid #ef4444;
+        }
+        .feedback {
+            margin-top: 1rem;
+            font-weight: bold;
+            font-size: 1.1rem;
+            display: none;
+        }
+        .feedback.correct {
+            color: var(--success);
+            display: block;
+        }
+        .feedback.wrong {
+            color: #ef4444;
+            display: block;
+        }
+        .controls {
+            margin-top: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .progress-text {
+            color: var(--text-secondary);
+        }
+        .result-container {
+            text-align: center;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="/" class="logo">CodePilot</a>
+        <div class="nav-links">
+            <a href="/dashboard.html" id="dashLink" class="hidden">Dashboard</a>
+            <a href="/problems.html">Problems</a>
+        </div>
+    </nav>
+    
+    <div class="section">
+        <h1 id="topicTitle" style="text-align: center; margin-bottom: 0.5rem;">MCQ Practice</h1>
+        <p style="text-align: center; color: var(--text-secondary);">Test your knowledge with these 20 questions.</p>
+        
+        <div class="mcq-container">
+            <div id="quizContainer">
+                <div class="question-block">
+                    <div id="questionText" class="question-text">Loading...</div>
+                    <ul id="optionsList" class="options-list"></ul>
+                </div>
+                <div id="feedbackText" class="feedback"></div>
+                
+                <div class="controls">
+                    <span id="progressText" class="progress-text">Question 1 of 20</span>
+                    <div>
+                        <button id="submitBtn" class="btn-primary" onclick="submitAnswer()">Submit</button>
+                        <button id="nextBtn" class="btn-primary" style="display: none;" onclick="nextQuestion()">Next</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="resultContainer" class="result-container">
+                <h1 style="font-size: 3rem; margin-bottom: 1rem;">🎉</h1>
+                <h2 id="scoreText" style="margin-bottom: 2rem;"></h2>
+                <button onclick="location.reload()" class="btn-primary" style="margin-right: 1rem;">Restart Quiz</button>
+                <a href="/problems.html" class="btn-primary">Go to General Practice</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script src="js/mcqs.js"></script>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const topic = urlParams.get('topic');
+        
+        if(getToken()) {
+            document.getElementById('dashLink').classList.remove('hidden');
+        }
+
+        let currentQuestions = [];
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let hasSubmittedCurrent = false;
+
+        function initQuiz() {
+            if(!topic || !mcqData[topic]) {
+                document.getElementById('quizContainer').innerHTML = '<p class="text-center">No questions found for this topic.</p>';
+                return;
+            }
+            document.getElementById('topicTitle').innerText = `${topic} MCQ Practice`;
+            currentQuestions = mcqData[topic];
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            if (currentQuestionIndex >= currentQuestions.length) {
+                showFinalResults();
+                return;
+            }
+
+            hasSubmittedCurrent = false;
+            document.getElementById('submitBtn').style.display = 'inline-block';
+            document.getElementById('nextBtn').style.display = 'none';
+            document.getElementById('feedbackText').className = 'feedback';
+            document.getElementById('feedbackText').innerText = '';
+
+            const qObj = currentQuestions[currentQuestionIndex];
+            document.getElementById('progressText').innerText = `Question ${currentQuestionIndex + 1} of ${currentQuestions.length}`;
+            document.getElementById('questionText').innerHTML = qObj.q.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+            
+            let optionsHtml = '';
+            qObj.options.forEach((opt, oIndex) => {
+                optionsHtml += `
+                    <label class="option-item" id="opt-label-${oIndex}">
+                        <input type="radio" name="currentQ" value="${oIndex}">
+                        ${opt.replace(/</g, "&lt;").replace(/>/g, "&gt;")}
+                    </label>
+                `;
+            });
+            document.getElementById('optionsList').innerHTML = optionsHtml;
+        }
+
+        function submitAnswer() {
+            if (hasSubmittedCurrent) return;
+
+            const selected = document.querySelector('input[name="currentQ"]:checked');
+            if (!selected) {
+                alert("Please select an option first!");
+                return;
+            }
+
+            hasSubmittedCurrent = true;
+            const selectedIdx = parseInt(selected.value);
+            const correctIdx = currentQuestions[currentQuestionIndex].a;
+
+            // Highlight correct answer
+            document.getElementById(`opt-label-${correctIdx}`).classList.add('correct-answer');
+
+            const feedback = document.getElementById('feedbackText');
+            if (selectedIdx === correctIdx) {
+                score++;
+                feedback.innerText = "Correct!";
+                feedback.className = 'feedback correct';
+            } else {
+                // Highlight wrong selection
+                document.getElementById(`opt-label-${selectedIdx}`).classList.add('wrong-answer');
+                feedback.innerText = "Incorrect!";
+                feedback.className = 'feedback wrong';
+            }
+
+            // Disable all radio buttons
+            document.querySelectorAll('input[name="currentQ"]').forEach(el => el.disabled = true);
+
+            document.getElementById('submitBtn').style.display = 'none';
+            document.getElementById('nextBtn').style.display = 'inline-block';
+            
+            if (currentQuestionIndex === currentQuestions.length - 1) {
+                document.getElementById('nextBtn').innerText = 'See Results';
+            }
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            renderQuestion();
+        }
+
+        function showFinalResults() {
+            document.getElementById('quizContainer').style.display = 'none';
+            document.getElementById('resultContainer').style.display = 'block';
+            document.getElementById('scoreText').innerText = `You scored ${score} out of ${currentQuestions.length}!`;
+        }
+
+        initQuiz();
+    </script>
+</body>
+</html>

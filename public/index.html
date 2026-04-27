@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodePilot - Learn Coding by Practice</title>
+    <meta name="description" content="Master coding securely and interactively with CodePilot. Practice problems, track your streak, and earn respect.">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <nav>
+        <a href="/" class="logo">CodePilot</a>
+        <div class="nav-links">
+            <a href="/problems.html">Practice Problems</a>
+            <a href="/auth.html" class="btn-primary" id="authBtn">Login</a>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <h1>Learn Coding by <span style="color: var(--primary);">Practice</span></h1>
+        <p>Join thousands of developers mastering algorithms, data structures, and top-tier technologies. Start learning free and step up your career.</p>
+        <div class="mt-2">
+            <a href="/auth.html" class="btn-primary" style="font-size: 1.2rem; padding: 1rem 2rem;">Start Learning Free</a>
+        </div>
+    </header>
+
+    <section class="section" id="courses">
+        <h2 class="section-title">Explore Featured Paths</h2>
+        <div class="grid-3" id="dynamicCourses">
+            <p class="text-secondary text-center" style="grid-column: span 3;">Loading courses...</p>
+        </div>
+    </section>
+
+    <section class="section">
+        <h2 class="section-title">Why CodePilot?</h2>
+        <div class="grid-3 text-center">
+            <div>
+                <h3 style="color: var(--accent); font-size: 2rem; margin-bottom: 1rem;">Gamified</h3>
+                <p class="text-secondary">Keep your learning streak alive and compete on the global leaderboard.</p>
+            </div>
+            <div>
+                <h3 style="color: var(--primary); font-size: 2rem; margin-bottom: 1rem;">Real Problems</h3>
+                <p class="text-secondary">Problems curated from top tech interviews and real-world scenarios.</p>
+            </div>
+            <div>
+                <h3 style="color: var(--success); font-size: 2rem; margin-bottom: 1rem;">Instant Feedback</h3>
+                <p class="text-secondary">Run your code and check it against robust hidden test cases.</p>
+            </div>
+        </div>
+    </section>
+
+    <script src="js/app.js"></script>
+    <script>
+        async function fetchCourses() {
+            try {
+                const res = await fetch(`${API_URL}/courses`);
+                const courses = await res.json();
+                const container = document.getElementById('dynamicCourses');
+                if (!container) return; // safeguard
+                container.innerHTML = courses.map(c => `
+                    <a href="/course.html?id=${c._id}" style="text-decoration: none; color: inherit; display: block;">
+                        <div class="card" style="height: 100%;">
+                            <h3 style="color: var(--primary);">${c.title}</h3>
+                            <p class="mt-2 text-secondary" style="margin-top: 1rem;">${c.description}</p>
+                        </div>
+                    </a>
+                `).join('');
+            } catch (e) {
+                console.error(e);
+            }
+        }
+        fetchCourses();
+    </script>
+</body>
+</html>

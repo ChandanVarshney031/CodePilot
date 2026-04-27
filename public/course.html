@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodePilot - Course Notes</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <style>
+        .notes-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            background: var(--card-bg);
+            padding: 3rem;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+        .notes-content h1, .notes-content h2, .notes-content h3 {
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+        .notes-content p {
+            margin-bottom: 1rem;
+            color: var(--text-secondary);
+        }
+        .notes-content pre {
+            background: #1e1e1e;
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin-bottom: 1rem;
+        }
+        .notes-content code, .hljs {
+            font-family: 'Courier New', Courier, monospace;
+            color: #ffffff !important;
+        }
+        /* Custom override for green comments */
+        .hljs-comment, 
+        .hljs-quote {
+            color: #10b981 !important;
+            font-style: italic;
+        }
+        /* Custom Tab UI */
+        .tab-btn {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+        .tab-btn.active-tab {
+            background: rgba(16, 185, 129, 0.2);
+            border-color: var(--success);
+            color: var(--success);
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="/" class="logo">CodePilot</a>
+        <div class="nav-links">
+            <a href="/dashboard.html" id="dashLink" class="hidden">Dashboard</a>
+            <a href="/problems.html">Problems</a>
+        </div>
+    </nav>
+    
+    <div class="section" id="courseDetails">
+        <h1 id="cTitle" style="text-align: center; margin-bottom: 0.5rem;">Loading Course...</h1>
+        <p id="cDesc" style="text-align: center; color: var(--text-secondary);"></p>
+        
+        <div class="notes-container">
+            <div id="cNotes" class="notes-content">
+                <!-- Markdown parsed notes go here -->
+            </div>
+            
+            <div class="mt-2 text-center" style="margin-top: 3rem;">
+                <a href="/problems.html" id="practiceBtn" class="btn-primary">Go to Practice</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const courseId = urlParams.get('id');
+
+        if(getToken()) {
+            document.getElementById('dashLink').classList.remove('hidden');
+        }
+
+        async function loadCourse() {
+            try {
+                const res = await fetch(`${API_URL}/courses/${courseId}`);
+                if (!res.ok) throw new Error('Course not found');
+                const course = await res.json();
+                
+                document.getElementById('cTitle').textContent = course.title;
+                document.getElementById('cDesc').textContent = course.description;
+                
+                if (course.notes && course.notes.length > 0) {
+                    let tabsHTML = '<div class="tabs-container" style="display:flex; flex-wrap:wrap; gap:10px; margin-bottom:20px;">';
+                    let contentHTML = '';
+
+                    course.notes.forEach((note, index) => {
+                        // Extract Title from Markdown dynamically for the Tab button
+                        let titleMatch = note.match(/#+\s+\*\*([^*]+)\*\*/);
+                        let title = titleMatch ? titleMatch[1].replace(/^\d+\.\s*/, '') : (index === 0 ? "Introduction" : "Section " + (index+1));
+                        
+                        tabsHTML += `<button class="btn-primary tab-btn ${index === 0 ? 'active-tab' : ''}" onclick="showTab(${index}, '${title}')" id="tab-btn-${index}">${title}</button>`;
+                        contentHTML += `<div id="tab-content-${index}" class="tab-content" style="display: ${index === 0 ? 'block' : 'none'}; animation: fadeIn 0.3s;">${marked.parse(note)}</div>`;
+                        
+                        if(index === 0) {
+                            window.currentInitialTab = title;
+                        }
+                    });
+                    tabsHTML += '</div>';
+
+                    document.getElementById('cNotes').innerHTML = tabsHTML + contentHTML;
+                    
+                    if (course.title === 'Web Development Bootcamp' && window.currentInitialTab) {
+                        const practiceBtn = document.getElementById('practiceBtn');
+                        if (practiceBtn && ['HTML', 'CSS', 'JavaScript'].includes(window.currentInitialTab)) {
+                            practiceBtn.href = `/mcq.html?topic=${window.currentInitialTab}`;
+                        }
+                    }
+                    
+                    // Apply syntax highlighting
+                    document.querySelectorAll('pre code').forEach((block) => {
+                        hljs.highlightElement(block);
+                    });
+                } else {
+                    document.getElementById('cNotes').innerHTML = '<p>No notes available for this course yet.</p>';
+                }
+            } catch (e) {
+                console.error(e);
+                document.getElementById('cTitle').textContent = 'Course Not Found';
+            }
+        }
+        
+        // Expose global click handler for the tabs
+        window.showTab = function(index, title) {
+            document.querySelectorAll('.tab-content').forEach((el, i) => {
+                el.style.display = (i === index) ? 'block' : 'none';
+            });
+            document.querySelectorAll('.tab-btn').forEach((btn, i) => {
+                if(i === index) {
+                    btn.classList.add('active-tab');
+                } else {
+                    btn.classList.remove('active-tab');
+                }
+            });
+            
+            const practiceBtn = document.getElementById('practiceBtn');
+            const cTitle = document.getElementById('cTitle').textContent;
+            if (practiceBtn && cTitle === 'Web Development Bootcamp') {
+                if (title && ['HTML', 'CSS', 'JavaScript'].includes(title)) {
+                    practiceBtn.href = `/mcq.html?topic=${title}`;
+                } else {
+                    practiceBtn.href = '/problems.html';
+                }
+            }
+        };
+
+        if (courseId) {
+            loadCourse();
+        } else {
+            document.getElementById('cTitle').textContent = 'Invalid Course';
+        }
+    </script>
+</body>
+</html>
