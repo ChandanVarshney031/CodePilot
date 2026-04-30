@@ -52,11 +52,24 @@
     <script src="js/app.js"></script>
     <script>
         async function fetchCourses() {
+            const container = document.getElementById('dynamicCourses');
             try {
                 const res = await fetch(`${API_URL}/courses`);
+                if (!res.ok) throw new Error('Failed to fetch courses');
+                
                 const courses = await res.json();
-                const container = document.getElementById('dynamicCourses');
-                if (!container) return; // safeguard
+                if (!container) return;
+
+                if (!Array.isArray(courses)) {
+                    container.innerHTML = `<p class="text-secondary text-center" style="grid-column: span 3;">No courses available at the moment.</p>`;
+                    return;
+                }
+
+                if (courses.length === 0) {
+                    container.innerHTML = `<p class="text-secondary text-center" style="grid-column: span 3;">No courses found.</p>`;
+                    return;
+                }
+
                 container.innerHTML = courses.map(c => `
                     <a href="/course.html?id=${c._id}" style="text-decoration: none; color: inherit; display: block;">
                         <div class="card" style="height: 100%;">
@@ -67,6 +80,9 @@
                 `).join('');
             } catch (e) {
                 console.error(e);
+                if (container) {
+                    container.innerHTML = `<p class="text-danger text-center" style="grid-column: span 3;">Error loading courses. Please try again later.</p>`;
+                }
             }
         }
         fetchCourses();

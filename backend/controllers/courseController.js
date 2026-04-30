@@ -5,7 +5,8 @@ exports.getAllCourses = async (req, res) => {
         const courses = await Course.find().select('-notes');
         res.json(courses);
     } catch (err) {
-        res.status(500).json({ message: 'Server error' });
+        console.error('Error in getAllCourses:', err);
+        res.status(500).json({ message: 'Server error', error: err.message });
     }
 };
 
