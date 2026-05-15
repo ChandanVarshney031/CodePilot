@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (authBtn) {
         if (getToken()) {
             authBtn.textContent = 'Dashboard';
-            authBtn.href = '/dashboard.html';
+            authBtn.href = 'dashboard.html';
         }
     }
 });
