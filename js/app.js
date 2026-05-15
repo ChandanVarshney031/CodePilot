@@ -1,6 +1,7 @@
 const API_URL = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost' 
     ? 'http://127.0.0.1:5001/api' 
-    : 'https://codepilot-backend.onrender.com/api'; // Replace with your actual backend URL after deployment
+    : 'https://codepilot-backend-m2xi.onrender.com/api'; 
+
 
 
 function getToken() {
