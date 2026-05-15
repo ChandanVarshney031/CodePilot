@@ -57,7 +57,8 @@ authForm.addEventListener('submit', async (e) => {
         if (res.ok) {
             localStorage.setItem('codepilot_token', data.token);
             localStorage.setItem('codepilot_user', JSON.stringify(data.user));
-            window.location.href = '';
+            window.location.href = 'index.html';
+
         } else {
             errorMsg.textContent = data.message || 'An error occurred';
             errorMsg.classList.remove('hidden');
