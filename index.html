@@ -13,8 +13,8 @@
     <nav>
         <a href="index.html" class="logo">CodePilot</a>
         <div class="nav-links">
-            <a href="problems.html">Practice Problems</a>
-            <a href="auth.html" class="btn-primary" id="authBtn">Login</a>
+            <a href="problems_v2.html">Practice Problems</a>
+            <a href="auth_v2.html" class="btn-primary" id="authBtn">Login</a>
         </div>
     </nav>
 
@@ -22,7 +22,7 @@
         <h1>Learn Coding by <span style="color: var(--primary);">Practice</span></h1>
         <p>Join thousands of developers mastering algorithms, data structures, and top-tier technologies. Start learning free and step up your career.</p>
         <div class="mt-2">
-            <a href="auth.html" class="btn-primary" style="font-size: 1.2rem; padding: 1rem 2rem;">Start Learning Free</a>
+            <a href="auth_v2.html" class="btn-primary" style="font-size: 1.2rem; padding: 1rem 2rem;">Start Learning Free</a>
         </div>
     </header>
 
@@ -73,7 +73,7 @@
                 }
 
                 container.innerHTML = courses.map(c => `
-                    <a href="course.html?id=${c._id}" style="text-decoration: none; color: inherit; display: block;">
+                    <a href="course_v2.html?id=${c._id}" style="text-decoration: none; color: inherit; display: block;">
                         <div class="card" style="height: 100%;">
                             <h3 style="color: var(--primary);">${c.title}</h3>
                             <p class="mt-2 text-secondary" style="margin-top: 1rem;">${c.description}</p>

@@ -40,7 +40,7 @@
     <nav>
         <a href="index.html" class="logo">CodePilot</a>
         <div class="nav-links">
-            <a href="problems.html">Practice Problems</a>
+            <a href="problems_v2.html">Practice Problems</a>
             <a href="#" onclick="logout()">Logout</a>
         </div>
     </nav>
@@ -51,7 +51,7 @@
                 <h1 id="welcomeTitle">Welcome back!</h1>
                 <p class="text-secondary">Here's your learning progress.</p>
             </div>
-            <a href="problems.html" class="btn-primary">Solve Problem</a>
+            <a href="problems_v2.html" class="btn-primary">Solve Problem</a>
         </div>
 
         <div class="stats-grid">
@@ -87,7 +87,7 @@
 
     <script src="js/app.js?v=2"></script>
     <script>
-        if (!getToken()) window.location.href = 'auth.html';
+        if (!getToken()) window.location.href = 'auth_v2.html';
 
         async function loadDashboard() {
             try {

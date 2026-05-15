@@ -60,8 +60,8 @@
     <nav>
         <a href="index.html" class="logo">CodePilot</a>
         <div class="nav-links">
-            <a href="dashboard.html" id="dashLink" class="hidden">Dashboard</a>
-            <a href="problems.html">Problems</a>
+            <a href="dashboard_v2.html" id="dashLink" class="hidden">Dashboard</a>
+            <a href="problems_v2.html">Problems</a>
         </div>
     </nav>
     
@@ -75,7 +75,7 @@
             </div>
             
             <div class="mt-2 text-center" style="margin-top: 3rem;">
-                <a href="problems.html" id="practiceBtn" class="btn-primary">Go to Practice</a>
+                <a href="problems_v2.html" id="practiceBtn" class="btn-primary">Go to Practice</a>
             </div>
         </div>
     </div>
@@ -121,7 +121,7 @@
                     if (course.title === 'Web Development Bootcamp' && window.currentInitialTab) {
                         const practiceBtn = document.getElementById('practiceBtn');
                         if (practiceBtn && ['HTML', 'CSS', 'JavaScript'].includes(window.currentInitialTab)) {
-                            practiceBtn.href = `mcq.html?topic=${window.currentInitialTab}`;
+                            practiceBtn.href = `mcq_v2.html?topic=${window.currentInitialTab}`;
                         }
                     }
                     
@@ -155,9 +155,9 @@
             const cTitle = document.getElementById('cTitle').textContent;
             if (practiceBtn && cTitle === 'Web Development Bootcamp') {
                 if (title && ['HTML', 'CSS', 'JavaScript'].includes(title)) {
-                    practiceBtn.href = `mcq.html?topic=${title}`;
+                    practiceBtn.href = `mcq_v2.html?topic=${title}`;
                 } else {
-                    practiceBtn.href = 'problems.html';
+                    practiceBtn.href = 'problems_v2.html';
                 }
             }
         };
