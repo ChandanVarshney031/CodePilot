@@ -121,7 +121,7 @@
                     if (course.title === 'Web Development Bootcamp' && window.currentInitialTab) {
                         const practiceBtn = document.getElementById('practiceBtn');
                         if (practiceBtn && ['HTML', 'CSS', 'JavaScript'].includes(window.currentInitialTab)) {
-                            practiceBtn.href = `/mcq.html?topic=${window.currentInitialTab}`;
+                            practiceBtn.href = `mcq.html?topic=${window.currentInitialTab}`;
                         }
                     }
                     
@@ -155,9 +155,9 @@
             const cTitle = document.getElementById('cTitle').textContent;
             if (practiceBtn && cTitle === 'Web Development Bootcamp') {
                 if (title && ['HTML', 'CSS', 'JavaScript'].includes(title)) {
-                    practiceBtn.href = `/mcq.html?topic=${title}`;
+                    practiceBtn.href = `mcq.html?topic=${title}`;
                 } else {
-                    practiceBtn.href = '/problems.html';
+                    practiceBtn.href = 'problems.html';
                 }
             }
         };
