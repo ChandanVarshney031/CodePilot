@@ -1,9 +1,15 @@
+const mongoose = require('mongoose');
 const Course = require('../models/Course');
+
 
 exports.getAllCourses = async (req, res) => {
     try {
+        if (mongoose.connection.readyState !== 1) {
+            return res.status(500).json({ message: 'Database not connected', state: mongoose.connection.readyState });
+        }
         const courses = await Course.find().select('-notes');
         res.json(courses);
+
     } catch (err) {
         console.error('Error in getAllCourses:', err);
         res.status(500).json({ message: 'Server error', error: err.message });
