@@ -10,7 +10,21 @@ const PORT = process.env.PORT || 5000;
 // Middleware
 app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
+// Static Files
+app.use('/css', express.static(path.join(__dirname, 'css')));
+app.use('/js', express.static(path.join(__dirname, 'js')));
+app.use('/assets', express.static(path.join(__dirname, 'assets')));
+app.use('/files', express.static(path.join(__dirname, 'files')));
+
+// Serve HTML files from root
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
+
+// Specific routes for HTML files (avoiding generic greedy match for security)
+const htmlPages = ['auth', 'course', 'dashboard', 'mcq', 'practice', 'problems'];
+htmlPages.forEach(page => {
+    app.get(`/${page}.html`, (req, res) => res.sendFile(path.join(__dirname, `${page}.html`)));
+});
+
 
 // Database Connection
 mongoose.connect(process.env.MONGODB_URI)

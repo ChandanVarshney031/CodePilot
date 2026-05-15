@@ -1,4 +1,7 @@
-const API_URL = 'http://127.0.0.1:5001/api';
+const API_URL = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost' 
+    ? 'http://127.0.0.1:5001/api' 
+    : 'https://codepilot-backend.onrender.com/api'; // Replace with your actual backend URL after deployment
+
 
 function getToken() {
     return localStorage.getItem('codepilot_token');
@@ -12,7 +15,7 @@ function getUser() {
 function logout() {
     localStorage.removeItem('codepilot_token');
     localStorage.removeItem('codepilot_user');
-    window.location.href = '/';
+    window.location.href = 'index.html';
 }
 
 document.addEventListener('DOMContentLoaded', () => {
