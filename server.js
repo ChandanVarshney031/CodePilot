@@ -33,7 +33,8 @@ app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 // Specific routes for HTML files (avoiding generic greedy match for security)
 const htmlPages = ['auth', 'course', 'dashboard', 'mcq', 'practice', 'problems'];
 htmlPages.forEach(page => {
-    app.get(`/${page}.html`, (req, res) => res.sendFile(path.join(__dirname, `${page}.html`)));
+    app.get(`/${page}.html`, (req, res) => res.sendFile(path.join(__dirname, `${page}_v2.html`)));
+    app.get(`/${page}_v2.html`, (req, res) => res.sendFile(path.join(__dirname, `${page}_v2.html`)));
 });
 
 
