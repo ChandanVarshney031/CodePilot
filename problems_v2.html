@@ -68,19 +68,16 @@
     <script>
         // Use API_URL from app.js instead of absolute URL 
         async function loadProblems() {
-            try {
-                const res = await fetch(`${API_URL}/problems`);
-                const problems = await res.json();
-                
-                const renderHTML = (p) => `
-                    <div class="problem-row">
-                        <div style="font-weight: 500;">${p.title}</div>
-                        <div><span class="badge ${p.difficulty.toLowerCase()}">${p.difficulty}</span></div>
-                        <div class="text-secondary">${p.category}</div>
-                        <div><a href="practice_v2.html?id=${p._id}" class="btn-secondary">Solve</a></div>
-                    </div>
-                `;
+            const renderHTML = (p) => `
+                <div class="problem-row">
+                    <div style="font-weight: 500;">${p.title}</div>
+                    <div><span class="badge ${p.difficulty.toLowerCase()}">${p.difficulty}</span></div>
+                    <div class="text-secondary">${p.category}</div>
+                    <div><a href="practice_v2.html?id=${p._id}" class="btn-secondary">Solve</a></div>
+                </div>
+            `;
 
+            function renderAllLists(problems) {
                 const easy = problems.filter(p => p.difficulty === 'Easy');
                 const medium = problems.filter(p => p.difficulty === 'Medium');
                 const hard = problems.filter(p => p.difficulty === 'Hard');
@@ -89,13 +86,42 @@
                 const mediumList = document.getElementById('mediumProblemsList');
                 const hardList = document.getElementById('hardProblemsList');
 
-                easyList.innerHTML = easy.length ? easy.map(renderHTML).join('') : '<p style="padding: 2rem; text-align: center;" class="text-secondary">No problems found.</p>';
-                mediumList.innerHTML = medium.length ? medium.map(renderHTML).join('') : '<p style="padding: 2rem; text-align: center;" class="text-secondary">No problems found.</p>';
-                hardList.innerHTML = hard.length ? hard.map(renderHTML).join('') : '<p style="padding: 2rem; text-align: center;" class="text-secondary">No problems found.</p>';
+                if (easyList) easyList.innerHTML = easy.length ? easy.map(renderHTML).join('') : '<p style="padding: 2rem; text-align: center;" class="text-secondary">No problems found.</p>';
+                if (mediumList) mediumList.innerHTML = medium.length ? medium.map(renderHTML).join('') : '<p style="padding: 2rem; text-align: center;" class="text-secondary">No problems found.</p>';
+                if (hardList) hardList.innerHTML = hard.length ? hard.map(renderHTML).join('') : '<p style="padding: 2rem; text-align: center;" class="text-secondary">No problems found.</p>';
+            }
 
+            // Step 1: Stale-While-Revalidate - Load from Cache instantly
+            let hasCache = false;
+            try {
+                const cachedData = localStorage.getItem('codepilot_problems_cache');
+                if (cachedData) {
+                    const parsed = JSON.parse(cachedData);
+                    if (Array.isArray(parsed) && parsed.length > 0) {
+                        renderAllLists(parsed);
+                        hasCache = true;
+                    }
+                }
             } catch (e) {
-                console.error(e);
-                document.getElementById('easyProblemsList').innerHTML = '<p style="padding: 2rem; text-align: center; color: var(--danger);">Failed to load problems.</p>';
+                console.error("Cache read error:", e);
+            }
+
+            // Step 2: Fetch fresh data in the background
+            try {
+                const res = await fetch(`${API_URL}/problems`);
+                if (!res.ok) throw new Error('Failed to fetch');
+                
+                const problems = await res.json();
+                renderAllLists(problems);
+
+                // Update cache
+                localStorage.setItem('codepilot_problems_cache', JSON.stringify(problems));
+            } catch (e) {
+                console.error("Fresh fetch error:", e);
+                if (!hasCache) {
+                    const easyList = document.getElementById('easyProblemsList');
+                    if (easyList) easyList.innerHTML = '<p style="padding: 2rem; text-align: center; color: var(--danger);">Failed to load problems.</p>';
+                }
             }
         }
         
