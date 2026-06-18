@@ -9,7 +9,7 @@ async function run() {
         const courses = await Course.find();
         console.log('Total courses:', courses.length);
         for (const c of courses) {
-            console.log(`- Course: ${c.title}, Category: ${c.category}, Notes count: ${c.notes ? c.notes.length : 'undefined'}`);
+            console.log(`- Course: ${c.title} (ID: ${c._id}), Category: ${c.category}, Notes count: ${c.notes ? c.notes.length : 'undefined'}`);
             if (c.notes) {
                 console.log(`  First note preview: ${c.notes[0] ? c.notes[0].substring(0, 100) : 'none'}`);
             }
