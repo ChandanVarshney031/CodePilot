@@ -904,6 +904,80 @@ A function that runs as soon as it is defined. Useful for avoiding variable hois
     console.log("Also runs immediately!");
 })();
 \`\`\``
+        ,`## **MySQL**
+
+### **Introduction to MySQL**
+MySQL is a popular, open-source Relational Database Management System (RDBMS) that uses Structured Query Language (SQL) for database management.
+
+### **Database and Table Operations**
+To start using MySQL, you must first create a database and tables inside it.
+\`\`\`sql
+-- Create a database
+CREATE DATABASE codepilot_db;
+
+-- Use the database
+USE codepilot_db;
+
+-- Create a users table
+CREATE TABLE users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) NOT NULL,
+    email VARCHAR(100) UNIQUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+\`\`\`
+
+### **Basic SQL Queries (CRUD)**
+\`\`\`sql
+-- INSERT: Add a new record
+INSERT INTO users (username, email) VALUES ('chandan', 'chandan@example.com');
+
+-- SELECT: Retrieve data
+SELECT * FROM users WHERE id = 1;
+
+-- UPDATE: Modify data
+UPDATE users SET username = 'chandan_dev' WHERE id = 1;
+
+-- DELETE: Remove data
+DELETE FROM users WHERE id = 1;
+\`\`\`
+
+### **MySQL JOINs**
+JOINs are used to query data from multiple tables based on a related column between them.
+\`\`\`sql
+-- INNER JOIN (Matches in both tables)
+SELECT users.username, orders.order_date
+FROM users
+INNER JOIN orders ON users.id = orders.user_id;
+
+-- LEFT JOIN (All from left table, matching from right)
+SELECT users.username, orders.order_date
+FROM users
+LEFT JOIN orders ON users.id = orders.user_id;
+\`\`\`
+
+### **Node.js Integration**
+In modern web development, you connect to MySQL from a Node.js backend using libraries like \`mysql2\`.
+\`\`\`javascript
+const mysql = require('mysql2');
+
+// Create connection
+const connection = mysql.createConnection({
+    host: 'localhost',
+    user: 'root',
+    password: 'password',
+    database: 'codepilot_db'
+});
+
+// Perform query
+connection.query(
+    'SELECT * FROM users',
+    function(err, results, fields) {
+        if (err) throw err;
+        console.log(results); // Array of user objects
+    }
+);
+\`\`\``
     ];
 
     await Course.updateOne(
