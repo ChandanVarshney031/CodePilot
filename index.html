@@ -52,6 +52,7 @@
     </section>
 
     <script src="js/app.js?v=2"></script>
+    <script src="js/coursesData.js?v=2"></script>
     <script>
         async function fetchCourses() {
             const container = document.getElementById('dynamicCourses');
@@ -100,7 +101,12 @@
             } catch (e) {
                 console.error("Fresh fetch error:", e);
                 if (!hasCache) {
-                    container.innerHTML = `<p class="text-danger text-center" style="grid-column: span 3;">Error loading courses. Please try again later.</p>`;
+                    if (typeof COURSES_DATA !== 'undefined' && Array.isArray(COURSES_DATA)) {
+                        console.log("Loading static fallback courses...");
+                        renderCourses(COURSES_DATA);
+                    } else {
+                        container.innerHTML = `<p class="text-danger text-center" style="grid-column: span 3;">Error loading courses. Please try again later.</p>`;
+                    }
                 }
             }
         }

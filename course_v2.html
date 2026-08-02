@@ -81,6 +81,7 @@
     </div>
 
     <script src="js/app.js?v=2"></script>
+    <script src="js/coursesData.js?v=2"></script>
     <script>
         const urlParams = new URLSearchParams(window.location.search);
         const courseId = urlParams.get('id');
@@ -91,9 +92,18 @@
 
         async function loadCourse() {
             try {
-                const res = await fetch(`${API_URL}/courses/${courseId}`);
-                if (!res.ok) throw new Error('Course not found');
-                const course = await res.json();
+                let course;
+                try {
+                    const res = await fetch(`${API_URL}/courses/${courseId}`);
+                    if (!res.ok) throw new Error('Course not found');
+                    course = await res.json();
+                } catch (e) {
+                    console.warn("Backend fetch failed, using static fallback:", e);
+                    if (typeof COURSES_DATA !== 'undefined' && Array.isArray(COURSES_DATA)) {
+                        course = COURSES_DATA.find(c => c._id === courseId);
+                    }
+                    if (!course) throw new Error('Course not found');
+                }
                 
                 document.getElementById('cTitle').textContent = course.title;
                 document.getElementById('cDesc').textContent = course.description;
