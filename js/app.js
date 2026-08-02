@@ -50,6 +50,36 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="decor-bracket decor-parens">()</div>
         <div class="decor-arrow decor-arrow-1">=&gt;</div>
         <div class="decor-arrow decor-arrow-2">=&gt;</div>
+        <div class="bg-code-block code-top-left">
+            <span class="syntax-keyword">function</span> <span class="syntax-def">app</span>() {<br>
+            &nbsp;&nbsp;<span class="syntax-keyword">for</span> (<span class="syntax-keyword">let</span> i = <span class="syntax-number">0</span>; i &lt; <span class="syntax-number">30</span>; i++) {<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="syntax-keyword">let</span> res = [];<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="syntax-keyword">return</span> res + <span class="syntax-string">'con'</span>;<br>
+            &nbsp;&nbsp;}<br>
+            }
+        </div>
+        <div class="bg-code-block code-top-right">
+            <span class="syntax-keyword">function</span> <span class="syntax-def">run</span>() {<br>
+            &nbsp;&nbsp;<span class="syntax-keyword">const</span> db = <span class="syntax-keyword">new</span> <span class="syntax-def">Database</span>();<br>
+            &nbsp;&nbsp;<span class="syntax-keyword">for</span> (<span class="syntax-keyword">let</span> i = <span class="syntax-number">0</span>; i &lt; <span class="syntax-number">5</span>; i++) {<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="syntax-keyword">if</span> (i === <span class="syntax-number">1</span>) {<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;console.<span class="syntax-def">log</span>(<span class="syntax-string">"Loading..."</span>);<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;}<br>
+            &nbsp;&nbsp;}<br>
+            }
+        </div>
+        <div class="bg-code-block code-bottom-left">
+            <span class="syntax-keyword">for</span> (<span class="syntax-keyword">let</span> s = <span class="syntax-number">0</span>; s &lt; limit; s++) {<br>
+            &nbsp;&nbsp;<span class="syntax-keyword">let</span> active = <span class="syntax-number">true</span>;<br>
+            &nbsp;&nbsp;console.<span class="syntax-def">log</span>(<span class="syntax-string">"CodePilot connected"</span>);<br>
+            }
+        </div>
+        <div class="bg-code-block code-bottom-right">
+            <span class="syntax-keyword">if</span> (user.<span class="syntax-def">isLoggedIn</span>()) {<br>
+            &nbsp;&nbsp;session.<span class="syntax-def">start</span>();<br>
+            &nbsp;&nbsp;<span class="syntax-def">loadDashboard</span>();<br>
+            }
+        </div>
     `;
     document.body.prepend(bgContainer);
 

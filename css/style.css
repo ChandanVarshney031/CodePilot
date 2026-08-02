@@ -550,3 +550,53 @@ textarea.code-editor {
         linear-gradient(90deg, rgba(255, 255, 255, 0.012) 1.5px, transparent 1.5px);
     background-size: 100% 100%, 55px 55px, 55px 55px;
 }
+
+/* Background Code Snippet Highlighting */
+.bg-code-block {
+    position: absolute;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    line-height: 1.45;
+    background: rgba(8, 9, 12, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.02);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-radius: 12px;
+    padding: 1rem 1.4rem;
+    pointer-events: none;
+    user-select: none;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    opacity: 0.18; /* Semi-transparent background layer */
+    z-index: -1;
+}
+
+.syntax-keyword { color: #f472b6; font-weight: 600; } /* Pink */
+.syntax-def { color: #60a5fa; } /* Blue */
+.syntax-string { color: #34d399; } /* Green */
+.syntax-comment { color: #94a3b8; opacity: 0.7; } /* Gray */
+.syntax-number { color: #fbbf24; } /* Orange */
+
+/* Code Blocks Positions */
+.code-top-left {
+    top: 15%;
+    left: 10%;
+    transform: rotate(-3deg);
+}
+
+.code-top-right {
+    top: 10%;
+    right: 12%;
+    transform: rotate(2deg);
+}
+
+.code-bottom-left {
+    bottom: 12%;
+    left: 8%;
+    transform: rotate(2deg);
+}
+
+.code-bottom-right {
+    bottom: 18%;
+    right: 10%;
+    transform: rotate(-3deg);
+}
