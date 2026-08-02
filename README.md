@@ -1,4 +1,4 @@
-# <img src="assets/codepilot_banner.png" alt="CodePilot Banner" width="100%">
+# <img src="assets/codepilot_banner.png?v=2" alt="CodePilot Banner" width="100%">
 
 <div align="center">
 
@@ -129,13 +129,13 @@ Your application will be live at `http://localhost:5001`!
 ### 🏆 Gamified Dashboard Layout
 Track your daily coding streak, view earned respect points, and review solved challenges.
 <p align="center">
-  <img src="assets/codepilot_dashboard.png" alt="CodePilot Dashboard Mockup" width="90%" style="border-radius: 8px;">
+  <img src="assets/codepilot_dashboard.png?v=2" alt="CodePilot Dashboard Mockup" width="90%" style="border-radius: 8px;">
 </p>
 
 ### 🖥️ Interactive Coding Workspace
 Write solutions, run test cases instantly, and receive immediate console responses.
 <p align="center">
-  <img src="assets/codepilot_workspace.png" alt="CodePilot Coding Workspace" width="90%" style="border-radius: 8px;">
+  <img src="assets/codepilot_workspace.png?v=2" alt="CodePilot Coding Workspace" width="90%" style="border-radius: 8px;">
 </p>
 
 ---
