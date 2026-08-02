@@ -133,6 +133,11 @@
                         if (practiceBtn && ['HTML', 'CSS', 'JavaScript'].includes(window.currentInitialTab)) {
                             practiceBtn.href = `mcq_v2.html?topic=${window.currentInitialTab}`;
                         }
+                    } else if (course.title === 'DBMS Mastery') {
+                        const practiceBtn = document.getElementById('practiceBtn');
+                        if (practiceBtn) {
+                            practiceBtn.href = 'mcq_v2.html?topic=DBMS';
+                        }
                     }
                     
                     // Apply syntax highlighting
@@ -163,11 +168,15 @@
             
             const practiceBtn = document.getElementById('practiceBtn');
             const cTitle = document.getElementById('cTitle').textContent;
-            if (practiceBtn && cTitle === 'Web Development Bootcamp') {
-                if (title && ['HTML', 'CSS', 'JavaScript'].includes(title)) {
-                    practiceBtn.href = `mcq_v2.html?topic=${title}`;
-                } else {
-                    practiceBtn.href = 'problems_v2.html';
+            if (practiceBtn) {
+                if (cTitle === 'Web Development Bootcamp') {
+                    if (title && ['HTML', 'CSS', 'JavaScript'].includes(title)) {
+                        practiceBtn.href = `mcq_v2.html?topic=${title}`;
+                    } else {
+                        practiceBtn.href = 'problems_v2.html';
+                    }
+                } else if (cTitle === 'DBMS Mastery') {
+                    practiceBtn.href = 'mcq_v2.html?topic=DBMS';
                 }
             }
         };

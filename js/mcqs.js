@@ -64,5 +64,27 @@ const mcqData = {
         { q: "How can you detect the client's browser name?", options: ["client.navName", "navigator.appName", "browser.name", "window.browser"], a: 1 },
         { q: "Which event occurs when the user clicks on an HTML element?", options: ["onchange", "onmouseover", "onmouseclick", "onclick"], a: 3 },
         { q: "How do you declare a JavaScript variable?", options: ["v carName;", "variable carName;", "let carName;", "def carName;"], a: 2 }
+    ],
+    "DBMS": [
+        { q: "What does DBMS stand for?", options: ["Database Management System", "Database Manipulation System", "Data Block Management System", "Digital Base Management System"], a: 0 },
+        { q: "Which of the following is NOT an ACID property in DBMS?", options: ["Atomicity", "Consistency", "Isolation", "Availability"], a: 3 },
+        { q: "What is the primary purpose of a primary key in a table?", options: ["To allow duplicate values", "To uniquely identify each record in a table", "To link two tables together", "To encrypt the table data"], a: 1 },
+        { q: "Which SQL command is used to retrieve data from a database?", options: ["GET", "SELECT", "EXTRACT", "FETCH"], a: 1 },
+        { q: "Which SQL JOIN returns all records from the left table and matched records from the right table?", options: ["INNER JOIN", "RIGHT JOIN", "FULL JOIN", "LEFT JOIN"], a: 3 },
+        { q: "What is the default port for MySQL database?", options: ["1521", "3306", "5432", "27017"], a: 1 },
+        { q: "Which SQL clause is used to filter records based on a specified condition?", options: ["GROUP BY", "ORDER BY", "WHERE", "HAVING"], a: 2 },
+        { q: "What type of database is MongoDB?", options: ["Relational Database", "Key-Value store", "Document-oriented NoSQL Database", "Graph Database"], a: 2 },
+        { q: "What does SQL stand for?", options: ["Structured Query Language", "Sequential Query Language", "Standard Query Language", "Simple Query Language"], a: 0 },
+        { q: "What is data normalization used for in relational databases?", options: ["To increase data redundancy", "To reduce data redundancy and improve data integrity", "To encrypt sensitive data", "To speed up data insertion speeds"], a: 1 },
+        { q: "Which normal form requires removing partial dependencies?", options: ["1NF", "2NF", "3NF", "BCNF"], a: 1 },
+        { q: "Which command is used to completely remove a table and its data from a database?", options: ["DELETE TABLE", "DROP TABLE", "REMOVE TABLE", "TRUNCATE TABLE"], a: 1 },
+        { q: "What is a foreign key?", options: ["A key defined in another database", "A key that uniquely identifies a row in its own table", "A key in one table that links to the primary key of another table", "A temporary key for backup purposes"], a: 2 },
+        { q: "What is the purpose of a database Index?", options: ["To encrypt data", "To back up database tables", "To speed up data retrieval operations", "To compress database size"], a: 2 },
+        { q: "What does the 'A' in ACID properties stand for?", options: ["Authorization", "Atomicity", "Availability", "Association"], a: 1 },
+        { q: "Which statement is used to undo a transaction that has not yet been saved to the database?", options: ["COMMIT", "UNDO", "ROLLBACK", "REVOKE"], a: 2 },
+        { q: "Which constraint ensures that all values in a column are unique?", options: ["PRIMARY KEY", "UNIQUE", "NOT NULL", "CHECK"], a: 1 },
+        { q: "In NoSQL, what is denormalization primarily used for?", options: ["To save storage space", "To optimize read performance by combining data", "To enforce strict ACID properties", "To structure data into traditional tables"], a: 1 },
+        { q: "Which of the following is a key-value store NoSQL database?", options: ["MongoDB", "PostgreSQL", "Redis", "Cassandra"], a: 2 },
+        { q: "Which SQL function is used to count the number of rows in a query?", options: ["COUNT()", "SUM()", "TOTAL()", "ROWS()"], a: 0 }
     ]
 };
