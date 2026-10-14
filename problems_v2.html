@@ -64,7 +64,8 @@
 
     </div>
 
-    <script src="js/app.js?v=2"></script>
+    <script src="js/app.js?v=3"></script>
+    <script src="js/problemsData.js?v=3"></script>
     <script>
         // Use API_URL from app.js instead of absolute URL 
         async function loadProblems() {
@@ -78,6 +79,7 @@
             `;
 
             function renderAllLists(problems) {
+                if (!Array.isArray(problems) || problems.length === 0) return;
                 const easy = problems.filter(p => p.difficulty === 'Easy');
                 const medium = problems.filter(p => p.difficulty === 'Medium');
                 const hard = problems.filter(p => p.difficulty === 'Hard');
@@ -91,37 +93,37 @@
                 if (hardList) hardList.innerHTML = hard.length ? hard.map(renderHTML).join('') : '<p style="padding: 2rem; text-align: center;" class="text-secondary">No problems found.</p>';
             }
 
-            // Step 1: Stale-While-Revalidate - Load from Cache instantly
-            let hasCache = false;
+            // Step 1: Instant load from PROBLEMS_DATA or cache
+            if (typeof PROBLEMS_DATA !== 'undefined' && Array.isArray(PROBLEMS_DATA) && PROBLEMS_DATA.length > 0) {
+                renderAllLists(PROBLEMS_DATA);
+            } else {
+                try {
+                    const cachedData = localStorage.getItem('codepilot_problems_cache');
+                    if (cachedData) {
+                        const parsed = JSON.parse(cachedData);
+                        if (Array.isArray(parsed) && parsed.length > 0) renderAllLists(parsed);
+                    }
+                } catch (e) {
+                    console.error("Cache read error:", e);
+                }
+            }
+
+            // Step 2: Background revalidation with 2.5s timeout (never blocks UI)
             try {
-                const cachedData = localStorage.getItem('codepilot_problems_cache');
-                if (cachedData) {
-                    const parsed = JSON.parse(cachedData);
-                    if (Array.isArray(parsed) && parsed.length > 0) {
-                        renderAllLists(parsed);
-                        hasCache = true;
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 2500);
+                const res = await fetch(`${API_URL}/problems`, { signal: controller.signal });
+                clearTimeout(timeoutId);
+                
+                if (res.ok) {
+                    const problems = await res.json();
+                    if (Array.isArray(problems) && problems.length > 0) {
+                        renderAllLists(problems);
+                        localStorage.setItem('codepilot_problems_cache', JSON.stringify(problems));
                     }
                 }
             } catch (e) {
-                console.error("Cache read error:", e);
-            }
-
-            // Step 2: Fetch fresh data in the background
-            try {
-                const res = await fetch(`${API_URL}/problems`);
-                if (!res.ok) throw new Error('Failed to fetch');
-                
-                const problems = await res.json();
-                renderAllLists(problems);
-
-                // Update cache
-                localStorage.setItem('codepilot_problems_cache', JSON.stringify(problems));
-            } catch (e) {
-                console.error("Fresh fetch error:", e);
-                if (!hasCache) {
-                    const easyList = document.getElementById('easyProblemsList');
-                    if (easyList) easyList.innerHTML = '<p style="padding: 2rem; text-align: center; color: var(--danger);">Failed to load problems.</p>';
-                }
+                console.log("Background problems sync bypassed. Local problem set active.");
             }
         }
         

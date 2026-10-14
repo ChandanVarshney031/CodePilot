@@ -91,3 +91,10 @@ const COURSES_DATA = [
     "__v": 0
   }
 ];
+
+if (typeof window !== 'undefined') {
+    window.COURSES_DATA = COURSES_DATA;
+}
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = COURSES_DATA;
+}

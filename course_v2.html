@@ -5,54 +5,231 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CodePilot - Course Notes</title>
     <link rel="stylesheet" href="css/style.css">
+    <!-- Highlight.js dark styling & script -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <!-- Static courses data loaded eagerly in head -->
+    <script src="js/coursesData.js?v=3"></script>
     <style>
-        .notes-container {
-            max-width: 800px;
-            margin: 2rem auto;
-            background: var(--card-bg);
-            padding: 3rem;
-            border-radius: 12px;
+        /* Course Switcher Bar (Language Tabs) */
+        .course-switcher-wrapper {
+            max-width: 950px;
+            margin: 1.5rem auto 1rem auto;
+            padding: 0 1rem;
+        }
+        .course-switcher-title {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-secondary);
+            margin-bottom: 0.6rem;
+            text-align: center;
+        }
+        .course-nav-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.03);
+            padding: 0.5rem;
+            border-radius: 14px;
             border: 1px solid var(--border-color);
+            backdrop-filter: blur(10px);
+        }
+        .course-tab-btn {
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--text-secondary);
+            padding: 0.6rem 1.1rem;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            transition: all 0.25s ease;
+            text-decoration: none;
+        }
+        .course-tab-btn:hover {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.07);
+            border-color: rgba(255, 255, 255, 0.12);
+            transform: translateY(-1px);
+        }
+        .course-tab-btn.active-course {
+            color: #ffffff;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.25), rgba(217, 70, 239, 0.25));
+            border-color: var(--primary);
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.35);
+        }
+
+        /* Notes Card */
+        .notes-container {
+            max-width: 950px;
+            margin: 1.5rem auto 3rem auto;
+            background: var(--card-bg);
+            padding: 2.5rem;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Topic Module Tabs inside the course */
+        .topic-tabs-header {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-secondary);
+            margin-bottom: 0.6rem;
+        }
+        .topic-tabs-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 1.8rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .topic-tab-btn {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 0.55rem 0.95rem;
+            border-radius: 8px;
+            font-size: 0.88rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .topic-tab-btn:hover {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.09);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+        .topic-tab-btn.active-tab {
+            background: rgba(16, 185, 129, 0.18);
+            border-color: var(--success);
+            color: #34d399;
+            font-weight: 600;
+        }
+
+        /* Markdown Notes Typography */
+        .notes-content {
+            line-height: 1.7;
+            font-size: 1.05rem;
         }
         .notes-content h1, .notes-content h2, .notes-content h3 {
-            margin-top: 1.5rem;
-            margin-bottom: 1rem;
+            margin-top: 1.8rem;
+            margin-bottom: 0.9rem;
+            color: #f1f5f9;
+        }
+        .notes-content h1 {
             color: var(--primary);
+            font-size: 1.9rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.5rem;
+        }
+        .notes-content h2 {
+            color: #60a5fa;
+            font-size: 1.45rem;
+        }
+        .notes-content h3 {
+            color: #38bdf8;
+            font-size: 1.2rem;
         }
         .notes-content p {
-            margin-bottom: 1rem;
-            color: var(--text-secondary);
+            margin-bottom: 1.1rem;
+            color: #cbd5e1;
         }
+        .notes-content ul, .notes-content ol {
+            margin-bottom: 1.2rem;
+            padding-left: 1.5rem;
+            color: #cbd5e1;
+        }
+        .notes-content li {
+            margin-bottom: 0.4rem;
+        }
+        .notes-content strong {
+            color: #f8fafc;
+        }
+        .notes-content blockquote {
+            border-left: 3px solid var(--primary);
+            padding: 0.5rem 1rem;
+            margin: 1rem 0;
+            background: rgba(99, 102, 241, 0.08);
+            border-radius: 0 8px 8px 0;
+            color: #94a3b8;
+        }
+
+        /* Code Blocks */
         .notes-content pre {
-            background: #1e1e1e;
-            padding: 1rem;
-            border-radius: 8px;
+            position: relative;
+            background: #0f172a;
+            padding: 1.2rem;
+            border-radius: 10px;
             overflow-x: auto;
-            margin-bottom: 1rem;
+            margin: 1.2rem 0;
+            border: 1px solid rgba(255, 255, 255, 0.08);
         }
-        .notes-content code, .hljs {
-            font-family: 'Courier New', Courier, monospace;
-            color: #ffffff !important;
+        .notes-content pre code, .hljs {
+            font-family: 'Consolas', 'Fira Code', 'Courier New', monospace;
+            font-size: 0.92rem;
+            color: #e2e8f0 !important;
+            background: transparent !important;
         }
-        /* Custom override for green comments */
-        .hljs-comment, 
-        .hljs-quote {
+        .hljs-comment, .hljs-quote {
             color: #10b981 !important;
             font-style: italic;
         }
-        /* Custom Tab UI */
-        .tab-btn {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid var(--border-color);
-            transition: all 0.3s ease;
+        .notes-content code:not(pre code) {
+            background: rgba(255, 255, 255, 0.08);
+            color: #ec4899;
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            font-family: 'Consolas', monospace;
+            font-size: 0.9em;
         }
-        .tab-btn.active-tab {
-            background: rgba(16, 185, 129, 0.2);
-            border-color: var(--success);
-            color: var(--success);
+
+        /* Copy Button for code blocks */
+        .copy-code-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #cbd5e1;
+            padding: 0.25rem 0.6rem;
+            font-size: 0.75rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .copy-code-btn:hover {
+            background: var(--primary);
+            color: #ffffff;
+        }
+
+        /* Table styles inside notes */
+        .notes-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.2rem 0;
+        }
+        .notes-content th, .notes-content td {
+            border: 1px solid var(--border-color);
+            padding: 0.75rem 1rem;
+            text-align: left;
+        }
+        .notes-content th {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--primary);
             font-weight: 600;
+        }
+
+        .tab-content {
+            animation: fadeIn 0.3s ease;
         }
     </style>
 </head>
@@ -60,132 +237,312 @@
     <nav>
         <a href="index.html" class="logo">CodePilot</a>
         <div class="nav-links">
-            <a href="dashboard_v2.html" id="dashLink" class="hidden">Dashboard</a>
+            <a href="index.html">Courses</a>
             <a href="problems_v2.html">Problems</a>
+            <a href="dashboard_v2.html" id="dashLink" class="hidden">Dashboard</a>
         </div>
     </nav>
     
-    <div class="section" id="courseDetails">
-        <h1 id="cTitle" style="text-align: center; margin-bottom: 0.5rem;">Loading Course...</h1>
-        <p id="cDesc" style="text-align: center; color: var(--text-secondary);"></p>
+    <div class="section" id="courseDetails" style="padding-top: 1.5rem;">
+        <!-- Top Course Switcher Bar (Language Tabs) -->
+        <div class="course-switcher-wrapper">
+            <div class="course-switcher-title">Select Language / Course Path</div>
+            <div class="course-nav-bar" id="courseNavBar">
+                <!-- Dynamically populated course tabs -->
+            </div>
+        </div>
+
+        <h1 id="cTitle" style="text-align: center; margin-top: 1.5rem; margin-bottom: 0.5rem;">Loading Course...</h1>
+        <p id="cDesc" style="text-align: center; color: var(--text-secondary); max-width: 650px; margin: 0 auto;"></p>
         
         <div class="notes-container">
+            <div class="topic-tabs-header">Course Modules &amp; Topics</div>
+            <div id="cTopicTabs" class="topic-tabs-container">
+                <!-- Topic buttons go here -->
+            </div>
+
             <div id="cNotes" class="notes-content">
                 <!-- Markdown parsed notes go here -->
             </div>
             
-            <div class="mt-2 text-center" style="margin-top: 3rem;">
-                <a href="problems_v2.html" id="practiceBtn" class="btn-primary">Go to Practice</a>
+            <div class="mt-2 text-center" style="margin-top: 3rem; display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
+                <a href="problems_v2.html" id="practiceBtn" class="btn-primary" style="padding: 0.8rem 1.8rem;">Practice Problems</a>
+                <a href="index.html" class="btn-secondary" style="padding: 0.8rem 1.8rem;">All Courses</a>
             </div>
         </div>
     </div>
 
-    <script src="js/app.js?v=2"></script>
-    <script src="js/coursesData.js?v=2"></script>
+    <script src="js/app.js?v=3"></script>
     <script>
-        const urlParams = new URLSearchParams(window.location.search);
-        const courseId = urlParams.get('id');
-
-        if(getToken()) {
-            document.getElementById('dashLink').classList.remove('hidden');
+        if (getToken()) {
+            const dashLink = document.getElementById('dashLink');
+            if (dashLink) dashLink.classList.remove('hidden');
         }
 
-        async function loadCourse() {
-            try {
-                let course;
-                try {
-                    const res = await fetch(`${API_URL}/courses/${courseId}`);
-                    if (!res.ok) throw new Error('Course not found');
-                    course = await res.json();
-                } catch (e) {
-                    console.warn("Backend fetch failed, using static fallback:", e);
-                    if (typeof COURSES_DATA !== 'undefined' && Array.isArray(COURSES_DATA)) {
-                        course = COURSES_DATA.find(c => c._id === courseId);
-                    }
-                    if (!course) throw new Error('Course not found');
-                }
-                
-                document.getElementById('cTitle').textContent = course.title;
-                document.getElementById('cDesc').textContent = course.description;
-                
-                if (course.notes && course.notes.length > 0) {
-                    let tabsHTML = '<div class="tabs-container" style="display:flex; flex-wrap:wrap; gap:10px; margin-bottom:20px;">';
-                    let contentHTML = '';
+        // Available Courses Catalog
+        const FALLBACK_CATALOG = [
+            { id: '69f352a2f238174853b34365', slug: 'cpp', name: 'C++', icon: '⚡', title: 'C++ Masterclass' },
+            { id: '69f352a2f238174853b34366', slug: 'java', name: 'Java & OOP', icon: '☕', title: 'OOPs with Java' },
+            { id: '69f352a2f238174853b34367', slug: 'python', name: 'Python', icon: '🐍', title: 'Python' },
+            { id: '69f352a2f238174853b34368', slug: 'web', name: 'Web Dev', icon: '🌐', title: 'Web Development Bootcamp' },
+            { id: '69f3592aa81f89102890518f', slug: 'dbms', name: 'DBMS', icon: '🗄️', title: 'DBMS Mastery' }
+        ];
 
-                    course.notes.forEach((note, index) => {
-                        // Extract Title from Markdown dynamically for the Tab button
-                        let titleMatch = note.match(/#+\s+\*\*([^*]+)\*\*/);
-                        let title = titleMatch ? titleMatch[1].replace(/^\d+\.\s*/, '') : (index === 0 ? "Introduction" : "Section " + (index+1));
-                        
-                        tabsHTML += `<button class="btn-primary tab-btn ${index === 0 ? 'active-tab' : ''}" onclick="showTab(${index}, '${title}')" id="tab-btn-${index}">${title}</button>`;
-                        contentHTML += `<div id="tab-content-${index}" class="tab-content" style="display: ${index === 0 ? 'block' : 'none'}; animation: fadeIn 0.3s;">${marked.parse(note)}</div>`;
-                        
-                        if(index === 0) {
-                            window.currentInitialTab = title;
-                        }
-                    });
-                    tabsHTML += '</div>';
+        let activeCourse = null;
+        let activeTopicIndex = 0;
 
-                    document.getElementById('cNotes').innerHTML = tabsHTML + contentHTML;
-                    
-                    if (course.title === 'Web Development Bootcamp' && window.currentInitialTab) {
-                        const practiceBtn = document.getElementById('practiceBtn');
-                        if (practiceBtn && ['HTML', 'CSS', 'JavaScript'].includes(window.currentInitialTab)) {
-                            practiceBtn.href = `mcq_v2.html?topic=${window.currentInitialTab}`;
-                        }
-                    } else if (course.title === 'DBMS Mastery') {
-                        const practiceBtn = document.getElementById('practiceBtn');
-                        if (practiceBtn) {
-                            practiceBtn.href = 'mcq_v2.html?topic=DBMS';
-                        }
-                    }
-                    
-                    // Apply syntax highlighting
-                    document.querySelectorAll('pre code').forEach((block) => {
-                        hljs.highlightElement(block);
-                    });
-                } else {
-                    document.getElementById('cNotes').innerHTML = '<p>No notes available for this course yet.</p>';
-                }
-            } catch (e) {
-                console.error(e);
+        // Render Top Course Navigation Bar (Tabs like C++, Python, Java...)
+        function renderCourseNavBar(activeIdOrSlug) {
+            const navBar = document.getElementById('courseNavBar');
+            if (!navBar) return;
+
+            const courses = (typeof COURSES_DATA !== 'undefined' && Array.isArray(COURSES_DATA) && COURSES_DATA.length > 0)
+                ? COURSES_DATA
+                : FALLBACK_CATALOG;
+
+            navBar.innerHTML = courses.map((c, idx) => {
+                const info = FALLBACK_CATALOG.find(f => f.id === c._id || f.title.toLowerCase() === (c.title || '').toLowerCase()) 
+                    || { icon: '📘', name: c.title, slug: 'c' + idx };
+                
+                const isSelected = activeCourse && (activeCourse._id === c._id || activeCourse.title === c.title);
+
+                return `
+                    <button class="course-tab-btn ${isSelected ? 'active-course' : ''}" 
+                            data-course-id="${c._id || info.id}" 
+                            onclick="switchCourse('${c._id || info.id}')">
+                        <span>${info.icon || '📘'}</span>
+                        <span>${c.title || info.name}</span>
+                    </button>
+                `;
+            }).join('');
+        }
+
+        // Robust Course Resolver
+        function resolveCourse(idOrQuery) {
+            const list = (typeof COURSES_DATA !== 'undefined' && Array.isArray(COURSES_DATA)) 
+                ? COURSES_DATA 
+                : [];
+
+            if (list.length === 0) return null;
+            if (!idOrQuery) return list[0]; // Default to first course if none specified
+
+            const q = String(idOrQuery).trim().toLowerCase();
+
+            // 1. Direct _id match
+            let found = list.find(c => c._id === idOrQuery || String(c._id).toLowerCase() === q);
+            if (found) return found;
+
+            // 2. Slug & Alias Mapping
+            const aliases = {
+                'cpp': 'c++',
+                'c++': 'c++',
+                'cplusplus': 'c++',
+                'java': 'java',
+                'oops': 'java',
+                'python': 'python',
+                'py': 'python',
+                'web': 'web dev',
+                'webdev': 'web dev',
+                'html': 'web dev',
+                'css': 'web dev',
+                'javascript': 'web dev',
+                'js': 'web dev',
+                'dbms': 'database',
+                'db': 'database',
+                'sql': 'database',
+                'database': 'database'
+            };
+
+            const targetCategory = aliases[q] || q;
+
+            // 3. Category match
+            found = list.find(c => c.category && c.category.toLowerCase() === targetCategory);
+            if (found) return found;
+
+            // 4. Title partial match
+            found = list.find(c => c.title && c.title.toLowerCase().includes(q));
+            if (found) return found;
+
+            // Fallback to first course
+            return list[0];
+        }
+
+        // Render Active Course Notes & Topic Tabs
+        function displayCourse(course) {
+            if (!course) {
                 document.getElementById('cTitle').textContent = 'Course Not Found';
+                document.getElementById('cDesc').textContent = 'Please choose a course from the tabs above.';
+                document.getElementById('cTopicTabs').innerHTML = '';
+                document.getElementById('cNotes').innerHTML = '<p class="text-secondary text-center">No notes available.</p>';
+                return;
             }
+
+            activeCourse = course;
+            renderCourseNavBar(course._id);
+
+            document.getElementById('cTitle').textContent = course.title;
+            document.getElementById('cDesc').textContent = course.description || '';
+            document.title = `CodePilot - ${course.title} Notes`;
+
+            const notes = Array.isArray(course.notes) ? course.notes : [];
+
+            if (notes.length === 0) {
+                document.getElementById('cTopicTabs').innerHTML = '';
+                document.getElementById('cNotes').innerHTML = '<p class="text-secondary text-center" style="padding: 2rem;">No notes available for this course yet.</p>';
+                return;
+            }
+
+            // Build Topic Tabs
+            const topicTabsContainer = document.getElementById('cTopicTabs');
+            let tabsHTML = '';
+            let contentHTML = '';
+
+            notes.forEach((note, index) => {
+                // Extract Title from Markdown for the Tab button
+                const titleMatch = note.match(/#+\s+\*\*([^*]+)\*\*/);
+                let title = titleMatch ? titleMatch[1].replace(/^\d+\.\s*/, '') : (index === 0 ? "Introduction" : "Topic " + (index + 1));
+                
+                tabsHTML += `
+                    <button class="topic-tab-btn ${index === 0 ? 'active-tab' : ''}" 
+                            id="topic-tab-${index}" 
+                            data-index="${index}"
+                            onclick="showTopicTab(${index}, '${title.replace(/'/g, "\\'")}')">
+                        ${title}
+                    </button>
+                `;
+
+                // Parse markdown into HTML
+                const parsedMarkdown = typeof marked !== 'undefined' ? marked.parse(note) : `<pre>${note}</pre>`;
+                contentHTML += `
+                    <div id="topic-content-${index}" class="tab-content" style="display: ${index === 0 ? 'block' : 'none'};">
+                        ${parsedMarkdown}
+                    </div>
+                `;
+            });
+
+            topicTabsContainer.innerHTML = tabsHTML;
+            document.getElementById('cNotes').innerHTML = contentHTML;
+
+            // Add Copy Buttons to all <pre> blocks
+            document.querySelectorAll('#cNotes pre').forEach((preBlock) => {
+                const copyBtn = document.createElement('button');
+                copyBtn.className = 'copy-code-btn';
+                copyBtn.textContent = 'Copy';
+                copyBtn.onclick = () => {
+                    const code = preBlock.querySelector('code');
+                    const text = code ? code.innerText : preBlock.innerText;
+                    navigator.clipboard.writeText(text).then(() => {
+                        copyBtn.textContent = 'Copied!';
+                        setTimeout(() => { copyBtn.textContent = 'Copy'; }, 2000);
+                    });
+                };
+                preBlock.appendChild(copyBtn);
+            });
+
+            // Highlight syntax in code blocks
+            if (typeof hljs !== 'undefined') {
+                document.querySelectorAll('#cNotes pre code').forEach((block) => {
+                    hljs.highlightElement(block);
+                });
+            }
+
+            // Set initial practice button target
+            activeTopicIndex = 0;
+            updatePracticeAction(course, 0);
         }
-        
-        // Expose global click handler for the tabs
-        window.showTab = function(index, title) {
-            document.querySelectorAll('.tab-content').forEach((el, i) => {
+
+        // Switch Topic Tab within current course
+        window.showTopicTab = function(index, topicTitle) {
+            activeTopicIndex = index;
+            document.querySelectorAll('#cNotes .tab-content').forEach((el, i) => {
                 el.style.display = (i === index) ? 'block' : 'none';
             });
-            document.querySelectorAll('.tab-btn').forEach((btn, i) => {
-                if(i === index) {
+            document.querySelectorAll('#cTopicTabs .topic-tab-btn').forEach((btn, i) => {
+                if (i === index) {
                     btn.classList.add('active-tab');
                 } else {
                     btn.classList.remove('active-tab');
                 }
             });
-            
+
+            updatePracticeAction(activeCourse, index, topicTitle);
+        };
+
+        // Update Practice / Quiz CTA button
+        function updatePracticeAction(course, topicIndex, topicTitle) {
             const practiceBtn = document.getElementById('practiceBtn');
-            const cTitle = document.getElementById('cTitle').textContent;
-            if (practiceBtn) {
-                if (cTitle === 'Web Development Bootcamp') {
-                    if (title && ['HTML', 'CSS', 'JavaScript'].includes(title)) {
-                        practiceBtn.href = `mcq_v2.html?topic=${title}`;
-                    } else {
-                        practiceBtn.href = 'problems_v2.html';
-                    }
-                } else if (cTitle === 'DBMS Mastery') {
-                    practiceBtn.href = 'mcq_v2.html?topic=DBMS';
-                }
+            if (!practiceBtn || !course) return;
+
+            if (course.title === 'Web Development Bootcamp') {
+                const subTopics = ['HTML', 'CSS', 'JavaScript'];
+                const matched = subTopics.find(t => topicTitle && topicTitle.includes(t)) || subTopics[topicIndex] || 'HTML';
+                practiceBtn.href = `mcq_v2.html?topic=${matched}`;
+                practiceBtn.textContent = `Practice ${matched} MCQs 🎯`;
+            } else if (course.title === 'DBMS Mastery' || course.category === 'Database') {
+                practiceBtn.href = 'mcq_v2.html?topic=DBMS';
+                practiceBtn.textContent = 'Practice DBMS MCQs 🎯';
+            } else {
+                practiceBtn.href = 'problems_v2.html';
+                practiceBtn.textContent = `Solve ${course.category || course.title} Problems 💻`;
+            }
+        }
+
+        // Switch to a different Course via tab click
+        window.switchCourse = function(courseIdOrSlug) {
+            const course = resolveCourse(courseIdOrSlug);
+            if (course) {
+                // Update URL parameter without reload
+                const newUrl = `${window.location.pathname}?id=${course._id}`;
+                window.history.pushState({ courseId: course._id }, '', newUrl);
+                displayCourse(course);
             }
         };
 
-        if (courseId) {
-            loadCourse();
-        } else {
-            document.getElementById('cTitle').textContent = 'Invalid Course';
+        // Background update attempt (non-blocking)
+        async function attemptBackgroundSync(courseId) {
+            if (!courseId) return;
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 2500);
+                const res = await fetch(`${API_URL}/courses/${courseId}`, { signal: controller.signal });
+                clearTimeout(timeoutId);
+                if (res.ok) {
+                    const freshCourse = await res.json();
+                    if (freshCourse && Array.isArray(freshCourse.notes) && freshCourse.notes.length > 0) {
+                        // Only re-render if active course is still the same
+                        if (activeCourse && activeCourse._id === freshCourse._id) {
+                            displayCourse(freshCourse);
+                        }
+                    }
+                }
+            } catch (e) {
+                // Ignore silent background fetch error
+                console.log("Offline or static mode active. Using local notes.");
+            }
         }
+
+        // Initialize page immediately
+        (function init() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const courseId = urlParams.get('id') || urlParams.get('course') || urlParams.get('category');
+
+            // 1. Instant 0ms Render from static data
+            const initialCourse = resolveCourse(courseId);
+            displayCourse(initialCourse);
+
+            // 2. Background sync (optional, never blocks UI)
+            if (initialCourse && initialCourse._id) {
+                attemptBackgroundSync(initialCourse._id);
+            }
+        })();
+
+        // Handle browser Back / Forward buttons
+        window.addEventListener('popstate', (e) => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const courseId = urlParams.get('id') || urlParams.get('course');
+            const course = resolveCourse(courseId);
+            if (course) displayCourse(course);
+        });
     </script>
 </body>
 </html>

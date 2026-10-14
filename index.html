@@ -51,63 +51,81 @@
         </div>
     </section>
 
-    <script src="js/app.js?v=2"></script>
-    <script src="js/coursesData.js?v=2"></script>
+    <script src="js/app.js?v=3"></script>
+    <script src="js/coursesData.js?v=3"></script>
     <script>
         async function fetchCourses() {
             const container = document.getElementById('dynamicCourses');
             if (!container) return;
+
+            const iconMap = {
+                'C++': '⚡',
+                'Java': '☕',
+                'Python': '🐍',
+                'Web Dev': '🌐',
+                'Database': '🗄️'
+            };
 
             function renderCourses(courses) {
                 if (!Array.isArray(courses) || courses.length === 0) {
                     container.innerHTML = `<p class="text-secondary text-center" style="grid-column: span 3;">No courses found.</p>`;
                     return;
                 }
-                container.innerHTML = courses.map(c => `
-                    <a href="course_v2.html?id=${c._id}" style="text-decoration: none; color: inherit; display: block;">
-                        <div class="card" style="height: 100%;">
-                            <h3 style="color: var(--primary);">${c.title}</h3>
-                            <p class="mt-2 text-secondary" style="margin-top: 1rem;">${c.description}</p>
-                        </div>
-                    </a>
-                `).join('');
+                container.innerHTML = courses.map(c => {
+                    const icon = iconMap[c.category] || '📘';
+                    const modulesCount = (c.notes && c.notes.length) || 0;
+                    return `
+                        <a href="course_v2.html?id=${c._id}" style="text-decoration: none; color: inherit; display: block;">
+                            <div class="card" style="height: 100%; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s, box-shadow 0.2s;">
+                                <div>
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;">
+                                        <span style="font-size: 1.5rem;">${icon}</span>
+                                        <span class="badge easy" style="font-size: 0.75rem; padding: 0.2rem 0.6rem;">${modulesCount} Modules</span>
+                                    </div>
+                                    <h3 style="color: var(--primary); margin-bottom: 0.5rem;">${c.title}</h3>
+                                    <p class="text-secondary" style="font-size: 0.95rem; line-height: 1.5;">${c.description}</p>
+                                </div>
+                                <div style="margin-top: 1.5rem; display: flex; align-items: center; color: var(--accent); font-weight: 600; font-size: 0.9rem;">
+                                    <span>Explore Notes &amp; Practice</span>
+                                    <span style="margin-left: 0.4rem;">→</span>
+                                </div>
+                            </div>
+                        </a>
+                    `;
+                }).join('');
             }
 
-            // Step 1: Stale-While-Revalidate - Load from Cache instantly
-            let hasCache = false;
-            try {
-                const cachedData = localStorage.getItem('codepilot_courses_cache');
-                if (cachedData) {
-                    const parsed = JSON.parse(cachedData);
-                    if (Array.isArray(parsed) && parsed.length > 0) {
-                        renderCourses(parsed);
-                        hasCache = true;
+            // Step 1: Instant render from COURSES_DATA or cache (0ms delay)
+            if (typeof COURSES_DATA !== 'undefined' && Array.isArray(COURSES_DATA) && COURSES_DATA.length > 0) {
+                renderCourses(COURSES_DATA);
+            } else {
+                try {
+                    const cachedData = localStorage.getItem('codepilot_courses_cache');
+                    if (cachedData) {
+                        const parsed = JSON.parse(cachedData);
+                        if (Array.isArray(parsed) && parsed.length > 0) renderCourses(parsed);
                     }
+                } catch (e) {
+                    console.error("Cache read error:", e);
                 }
-            } catch (e) {
-                console.error("Cache read error:", e);
             }
 
-            // Step 2: Fetch fresh data in the background
+            // Step 2: Background revalidation with 2.5s timeout (never blocks UI)
             try {
-                const res = await fetch(`${API_URL}/courses`);
-                if (!res.ok) throw new Error('Failed to fetch courses');
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 2500);
+                const res = await fetch(`${API_URL}/courses`, { signal: controller.signal });
+                clearTimeout(timeoutId);
                 
-                const courses = await res.json();
-                renderCourses(courses);
-
-                // Update cache
-                localStorage.setItem('codepilot_courses_cache', JSON.stringify(courses));
-            } catch (e) {
-                console.error("Fresh fetch error:", e);
-                if (!hasCache) {
-                    if (typeof COURSES_DATA !== 'undefined' && Array.isArray(COURSES_DATA)) {
-                        console.log("Loading static fallback courses...");
-                        renderCourses(COURSES_DATA);
-                    } else {
-                        container.innerHTML = `<p class="text-danger text-center" style="grid-column: span 3;">Error loading courses. Please try again later.</p>`;
+                if (res.ok) {
+                    const courses = await res.json();
+                    if (Array.isArray(courses) && courses.length > 0) {
+                        renderCourses(courses);
+                        localStorage.setItem('codepilot_courses_cache', JSON.stringify(courses));
                     }
                 }
+            } catch (e) {
+                console.log("Background courses sync bypassed. Local courses active.");
             }
         }
         fetchCourses();
