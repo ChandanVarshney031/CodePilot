@@ -7,7 +7,7 @@ async function testConnection() {
         await mongoose.connect(process.env.MONGODB_URI);
         console.log('MongoDB Connected successfully!');
         
-        const Course = require('./backend/models/Course');
+        const Course = require('../backend/models/Course');
         const count = await Course.countDocuments();
         console.log(`Number of courses in DB: ${count}`);
         
